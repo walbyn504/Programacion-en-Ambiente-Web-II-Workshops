@@ -4,12 +4,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const app = express();
+const routes = require('./routes/routes');
 
 // Middleware
 app.use(express.json());
 
 // Rutas
-const routes = require('./routes/routes');
 app.use('/api', routes);
 
 // MongoDB
