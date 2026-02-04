@@ -79,6 +79,21 @@ app.put('/course/:id', async (req, res) => {
     }
 });
 
+app.delete('/course/:id' , async (req, res) => {
+    try{
+        const id = req.params.id;
+        const deletedCourse = await Course.findByIdAndDelete(id);
+
+        if(!deletedCourse){
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        res.status(200).json({ message: 'Course deleted successfully' });
+    } catch(error){
+        res.status(400).json({ message: error.message });
+    }
+})
+
 
 //start the app
 app.listen(3001, () => console.log(`UTN API service listening on port 3001!`))
