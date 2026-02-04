@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>List Course</title>
+</head>
+<body>
+    <h1>List Course</h1>
+
+    <button onclick="loadCourses()">Load courses</button>
+    <button onclick="location.href='index.html'">Return</button>
+
+    <ul id="courseList"></ul>
+
+    <script>
+        const API_URL = 'http://localhost:3001/course';
+
+        async function loadCourses() {
+            const response = await fetch(API_URL);
+            const courses = await response.json();
+
+            const list = document.getElementById('courseList');
+            list.innerHTML = '';
+
+            courses.forEach(course => {
+                const li = document.createElement('li');
+                li.textContent = `${course.name} (${course.credits} credits)`;
+                list.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
