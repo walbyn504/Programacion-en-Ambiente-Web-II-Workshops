@@ -7,7 +7,6 @@ const Course = require('./models/course');
 mongoose.connect('mongodb+srv://WalAdmin:Admin1234@workshop1.n48hs0t.mongodb.net/workshop2');
 const database = mongoose.connection;
 
-
 database.on('error', (error) => {
     console.log(error)
 });
@@ -59,6 +58,26 @@ app.get('/course', async (req, res) => {
         res.status(500).json({message: error.message})
     }
 })
+
+app.put('/course/:id', async (req, res) => {
+    try{
+        const id = req.params.id;
+        const updatedData = req.body;
+        const options = { new: true };
+
+        const updatedCourse = await Course.findByIdAndUpdate(
+            id, updatedData, options
+        );
+
+        if(!updatedCourse){
+            return res.status(404).json({ message: 'Course not found'});
+        }
+
+        res.status(200).json(updatedCourse);
+    } catch(error){
+        res.status(400).json({ message: error.message });
+    }
+});
 
 
 //start the app
