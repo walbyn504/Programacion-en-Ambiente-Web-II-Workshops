@@ -35,7 +35,7 @@
 
         //Lista los profesores
         function loadProfessors() {
-            
+
             // Se crea el objeto AJAX que hara la llamada HTTP
             const ajaxRequest = new XMLHttpRequest();
 
@@ -96,11 +96,12 @@
                                 <td>${course.description || " "}</td>
                                 <td>
                                     ${
+                                    //Verifica que el id del profesor no sea nulo y que un objeto valido
                                     // typeof (pregunta si es objeto o string) si es objeto extrae el (nombre y apellido) del elemento
-                                     // En caso contrario usara el (nombre y apellido) directo
-                                        typeof course.professorId === "object"
+                                    // En caso contrario usara el (nombre y apellido) directo
+                                        course.professorId && typeof course.professorId === "object"
                                         ? course.professorId.name + " " + course.professorId.lastName
-                                        : " "
+                                        : "No Professor"
                                     }
                                 </td>
                                 <td>
