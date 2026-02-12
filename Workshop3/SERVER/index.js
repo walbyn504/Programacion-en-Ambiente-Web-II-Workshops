@@ -29,21 +29,37 @@ app.use(cors({
 
 //routes
 app.post('/course', async (req, res) => {
-    const course = new Course({
-        name: req.body.name,
-        credits: req.body.credits
-    })
-
     try {
+
+        const professorId = req.body.professorId;
+
+        const professorExists = await Professor.findById(professorId);
+
+        if (!professorExists) {
+            return res.status(400).json({
+                message: "Professor does not exist"
+            });
+        }
+
+        const course = new Course({
+            name: req.body.name,
+            credits: req.body.credits,
+            code: req.body.code,
+            description: req.body.description,
+            professorId: professorId
+        });
+
         const courseCreated = await course.save();
-        //add header location to the response
+
         res.header('Location', `/course?id=${courseCreated._id}`);
-        res.status(201).json(courseCreated)
-    }
-    catch (error) {
-        res.status(400).json({message: error.message})
+        res.status(201).json(courseCreated);
+
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
 });
+
+
 
 app.get('/course', async (req, res) => {
     try{
@@ -54,6 +70,8 @@ app.get('/course', async (req, res) => {
         }
         const data = await Course.findById(req.query.id).populate('professorId');;
         res.status(200).json(data)
+
+        
     }
     catch(error){
         res.status(500).json({message: error.message})
@@ -61,24 +79,42 @@ app.get('/course', async (req, res) => {
 })
 
 app.put('/course/:id', async (req, res) => {
-    try{
+    try {
+
         const id = req.params.id;
         const updatedData = req.body;
-        const options = { new: true };
+
+        // Valida si están enviando professorId
+        if (updatedData.professorId) {
+
+            const professorExists = await Professor.findById(updatedData.professorId);
+
+            if (!professorExists) {
+                return res.status(400).json({
+                    message: "Professor does not exist"
+                });
+            }
+        }
 
         const updatedCourse = await Course.findByIdAndUpdate(
-            id, updatedData, options
-        );
+            id,
+            updatedData,
+            { new: true }
+        ).populate('professorId');
 
-        if(!updatedCourse){
-            return res.status(404).json({ message: 'Course not found'});
+        if (!updatedCourse) {
+            return res.status(404).json({
+                message: 'Course not found'
+            });
         }
 
         res.status(200).json(updatedCourse);
-    } catch(error){
+
+    } catch (error) {
         res.status(400).json({ message: error.message });
     }
 });
+
 
 app.delete('/course/:id' , async (req, res) => {
     try{
