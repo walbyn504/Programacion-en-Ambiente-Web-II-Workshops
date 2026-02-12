@@ -55,7 +55,12 @@ app.post('/course', async (req, res) => {
         res.status(201).json(courseCreated);
 
     } catch (error) {
-        res.status(400).json({ message: error.message });
+
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "ID Card already exists"
+            });
+        }
     }
 });
 
@@ -111,7 +116,12 @@ app.put('/course/:id', async (req, res) => {
         res.status(200).json(updatedCourse);
 
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "ID Card already exists"
+            });
+        }
     }
 });
 
