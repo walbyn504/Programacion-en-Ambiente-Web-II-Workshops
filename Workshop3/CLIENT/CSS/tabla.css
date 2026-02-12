@@ -1,0 +1,70 @@
+/* ===== GENERAL ===== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+h1, h2 {
+    margin-bottom: 10px;
+}
+
+/* ===== INPUTS ===== */
+input, select {
+    padding: 6px;
+    margin: 4px 2px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* ===== BUTTONS ===== */
+button {
+    padding: 6px 12px;
+    margin: 6px 2px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #eaeaea;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #dcdcdc;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background-color: white;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #efefef;
+}
+
+/* ===== ACTION BUTTONS (opcionales) ===== */
+.btn-delete {
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.btn-delete:hover {
+    background-color: #f1b0b7;
+}
+
+.btn-edit {
+    background-color: #fff3cd;
+    border-color: #ffe69c;
+}
+
+.btn-edit:hover {
+    background-color: #ffe8a1;
+}
