@@ -5,6 +5,10 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    credits: {
+        required: true,
+        type: Number
+    },
     code: {
         type: String,
         required: true
