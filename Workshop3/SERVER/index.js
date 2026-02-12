@@ -49,10 +49,10 @@ app.get('/course', async (req, res) => {
     try{
         //if id is passed as query param, return single course else return all courses
         if(!req.query.id){
-            const data = await Course.find();
+            const data = await Course.find().populate('professorId');;
             return res.status(200).json(data)
         }
-        const data = await Course.findById(req.query.id);
+        const data = await Course.findById(req.query.id).populate('professorId');;
         res.status(200).json(data)
     }
     catch(error){
