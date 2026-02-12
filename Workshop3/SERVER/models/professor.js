@@ -11,7 +11,8 @@ const professorSchema = new mongoose.Schema({
     },
     idCard: {
         type: String,
-        required: true
+        required: true,
+        unique: true 
     },
     age: {
         type: Number,
