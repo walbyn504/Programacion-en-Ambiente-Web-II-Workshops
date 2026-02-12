@@ -131,6 +131,40 @@ app.post('/professor', async (req, res) => {
     }
 });
 
+app.put('/professor/:id', async (req, res) => {
+    try{
+        const id = req.params.id;
+        const updatedData = req.body;
+        const options = { new: true };
+
+        const updatedProfessor = await Professor.findByIdAndUpdate(
+            id, updatedData, options
+        );
+
+        if(!updatedProfessor){
+            return res.status(404).json({ message: 'Professor not found'});
+        }
+
+        res.status(200).json(updatedProfessor);
+    } catch(error){
+        res.status(400).json({ message: error.message });
+    }
+});
+
+app.delete('/professor/:id' , async (req, res) => {
+    try{
+        const id = req.params.id;
+        const deletedPorfessor = await Professor.findByIdAndDelete(id);
+
+        if(!deletedPorfessor){
+            return res.status(404).json({ message: 'Professor not found' });
+        }
+
+        res.status(200).json({ message: 'Professor deleted successfully' });
+    } catch(error){
+        res.status(400).json({ message: error.message });
+    }
+})
 
 //start the app
 app.listen(3001, () => console.log(`UTN API service listening on port 3001!`))
