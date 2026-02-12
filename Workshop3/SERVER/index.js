@@ -115,7 +115,9 @@ app.get('/professor', async (req, res) => {
 app.post('/professor', async (req, res) => {
     const course = new Professor({
         name: req.body.name,
-        credits: req.body.credits
+        lastName: req.body.lastName,
+        idCard: req.body.idCard,
+        age: req.body.age
     })
 
     try {
