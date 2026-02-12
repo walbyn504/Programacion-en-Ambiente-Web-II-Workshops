@@ -55,12 +55,7 @@ app.post('/course', async (req, res) => {
         res.status(201).json(courseCreated);
 
     } catch (error) {
-
-        if (error.code === 11000) {
-            return res.status(400).json({
-                message: "ID Card already exists"
-            });
-        }
+        res.status(400).json({ message: error.message });
     }
 });
 
@@ -116,12 +111,7 @@ app.put('/course/:id', async (req, res) => {
         res.status(200).json(updatedCourse);
 
     } catch (error) {
-        
-        if (error.code === 11000) {
-            return res.status(400).json({
-                message: "ID Card already exists"
-            });
-        }
+        res.status(400).json({ message: error.message });
     }
 });
 
@@ -173,7 +163,7 @@ app.post('/professor', async (req, res) => {
         res.status(201).json(professorCreated)
     }
     catch (error) {
-        res.status(400).json({message: error.message})
+        res.status(400).json({})
     }
 });
 
@@ -206,7 +196,7 @@ app.delete('/professor/:id' , async (req, res) => {
             return res.status(404).json({});
         }
 
-        res.status(200).json({});
+        res.status(200).json({ });
     } catch(error){
         res.status(400).json({});
     }
