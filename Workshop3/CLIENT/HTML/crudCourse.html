@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Course</title>
+    <link rel="stylesheet" href="css/tabla.css">
+
+</head>
+
+<body>
+
+    <h1>Create Course</h1>
+
+    <input type="text" id="name" placeholder="Name Course">
+    <input type="number" id="credits" placeholder="Credits">
+    <input type="text" id="code" placeholder="Code">
+    <input type="text" id="description" placeholder="Description">
+    <select id="professorId"></select>
+    <br><br>
+
+    <button onclick="createCourseAJAX()">Create</button>
+    <button onclick="location.href='index.html'">Return</button>
+
+    <h2>Course List</h2>
+    <div id="courseList"></div>
+
+    <script>
+
+        // 🔹 Al cargar la página
+        window.onload = function () {
+            loadProfessors();
+            getCoursesAJAX();
+        };
+
+        // =========================
+        // 🔹 LISTAR PROFESORES
+        // =========================
+        function loadProfessors() {
+            const ajaxRequest = new XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (this.status === 200) {
+                    const professors = JSON.parse(this.responseText);
+                    const select = document.getElementById("professorId");
+
+                    select.innerHTML = '<option value="">Select Professor</option>';
+
+                    professors.forEach(professor => {
+                        const option = document.createElement("option");
+                        option.value = professor._id;
+                        option.textContent = professor.name + " " + professor.lastName;
+                        select.appendChild(option);
+                    });
+
+                } else {
+                    alert("Error loading professors");
+                }
+            });
+
+            ajaxRequest.open("GET", "http://localhost:3001/professor");
+            ajaxRequest.send();
+        }
+
+        // =========================
+        // 🔹 LISTAR CURSOS (TABLA)
+        // =========================
+        function getCoursesAJAX() {
+            const ajaxRequest = new XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (this.status === 200) {
+                    const courses = JSON.parse(this.responseText);
+
+                    let html = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Credits</th>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>Professor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    courses.forEach(course => {
+                        html += `
+                            <tr>
+                                <td>${course.name}</td>
+                                <td>${course.credits}</td>
+                                <td>${course.code || " "}</td>
+                                <td>${course.description || " "}</td>
+                                <td>
+                                    ${
+                                        typeof course.professorId === "object"
+                                        ? course.professorId.name + " " + course.professorId.lastName
+                                        : " "
+                                    }
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+
+                    document.getElementById('courseList').innerHTML = html;
+                }
+            });
+
+            ajaxRequest.open("GET", "http://localhost:3001/course");
+            ajaxRequest.send();
+        }
+
+        // =========================
+        // 🔹 CREAR CURSO
+        // =========================
+        function createCourseAJAX() {
+            const name = document.getElementById('name').value;
+            const credits = Number(document.getElementById('credits').value);
+            const code = document.getElementById('code').value;
+            const description = document.getElementById('description').value;
+            const professorId = document.getElementById('professorId').value;
+
+            const ajaxRequest = new XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (this.status === 201) {
+                    alert('Successfully created course');
+
+                    // Limpiar campos
+                    document.getElementById('name').value = '';
+                    document.getElementById('credits').value = '';
+                    document.getElementById('code').value = '';
+                    document.getElementById('description').value = '';
+                    document.getElementById('professorId').value = '';
+
+                    // 🔥 Refrescar tabla automáticamente
+                    getCoursesAJAX();
+
+                } else {
+                    const response = JSON.parse(this.responseText);
+                    alert(response.message);
+                }
+            });
+
+            ajaxRequest.open("POST", "http://localhost:3001/course");
+            ajaxRequest.setRequestHeader("Content-Type", "application/json");
+
+            const body = JSON.stringify({ name, credits, code, description, professorId });
+            ajaxRequest.send(body);
+        }
+
+    </script>
+
+</body>
+</html>
