@@ -95,6 +95,40 @@ app.delete('/course/:id' , async (req, res) => {
     }
 })
 
+//Routes Professor
+app.get('/professor', async (req, res) => {
+    try{
+        //Si no se agrega un id, muestra todos los profesores
+        if(!req.query.id){
+            const data = await Professor.find();
+            return res.status(200).json(data)
+        }
+        // Si se agrega un id, muestra el profesor con el id correspondiente
+        const data = await Professor.findById(req.query.id);
+        res.status(200).json(data)
+    }
+    catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+
+app.post('/professor', async (req, res) => {
+    const course = new Professor({
+        name: req.body.name,
+        credits: req.body.credits
+    })
+
+    try {
+        const professorCreated = await course.save();
+        //add header location to the response
+        res.header('Location', `/professor?id=${professorCreated._id}`);
+        res.status(201).json(professorCreated)
+    }
+    catch (error) {
+        res.status(400).json({message: error.message})
+    }
+});
+
 
 //start the app
 app.listen(3001, () => console.log(`UTN API service listening on port 3001!`))
