@@ -2,9 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Create Professor</title>
+    <title>CRUD Professor</title>
+    <link rel="stylesheet" href="../CSS/tabla.css">
 </head>
+
 <body>
+
     <h1>Create Professor</h1>
 
     <input type="text" id="name" placeholder="Name Professor">
@@ -13,27 +16,89 @@
     <input type="number" id="age" placeholder="Age">
     <br><br>
 
-    <button onclick="createProfessorAJAX()">Create</button>
+    <button id="btnSave" onclick="createProfessorAJAX()">Create</button>
     <button onclick="location.href='index.html'">Return</button>
 
+    <h2>Professor List</h2>
+    <div id="professorList"></div>
+
     <script>
+
+        // 🔹 Al cargar
+        window.onload = function () {
+            getProfessorsAJAX();
+        };
+
+        // =========================
+        // 🔹 LISTAR PROFESORES
+        // =========================
+        function getProfessorsAJAX() {
+            const ajaxRequest = new XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (this.status === 200) {
+
+                    const professors = JSON.parse(this.responseText);
+
+                    let html = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Last Name</th>
+                                    <th>ID Card</th>
+                                    <th>Age</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    professors.forEach(professor => {
+                        html += `
+                            <tr>
+                                <td>${professor.name}</td>
+                                <td>${professor.lastName}</td>
+                                <td>${professor.idCard}</td>
+                                <td>${professor.age}</td>
+                                <td>
+                                    <button class="btn-edit" onclick="editProfessor('${professor._id}')">Edit</button>
+                                    <button class="btn-delete" onclick="deleteProfessor('${professor._id}')">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+
+                    document.getElementById('professorList').innerHTML = html;
+                }
+            });
+
+            ajaxRequest.open("GET", "http://localhost:3001/professor");
+            ajaxRequest.send();
+        }
+
+        // =========================
+        // 🔹 CREAR PROFESOR
+        // =========================
         function createProfessorAJAX() {
-            //Se obtiene los datos del formulario
+
             const name = document.getElementById('name').value;
             const lastName = document.getElementById('lastName').value;
             const idCard = document.getElementById('idCard').value;
-            const age = document.getElementById('age').value;
-            //Creación del objeto XMLHttpRequest
-            //Hacer petición HTTP al servidor
+            const age = Number(document.getElementById('age').value);
+
             const ajaxRequest = new XMLHttpRequest();
 
             ajaxRequest.addEventListener("load", function () {
                 if (this.status === 201) {
                     alert('Successfully created professor');
-                    document.getElementById('name').value = '';
-                    document.getElementById('lastName').value = '';
-                    document.getElementById('idCard').value = '';
-                    document.getElementById('age').value = '';
+                    clearForm();
+                    getProfessorsAJAX(); // 🔥 refrescar tabla
                 } else {
                     alert('Error creating professor');
                 }
@@ -45,6 +110,110 @@
             const body = JSON.stringify({ name, lastName, idCard, age });
             ajaxRequest.send(body);
         }
+
+        // =========================
+        // 🔹 ELIMINAR
+        // =========================
+        function deleteProfessor(professorId) {
+
+            if (!confirm("Are you sure you want to delete this professor?")) {
+                return;
+            }
+
+            const ajaxRequest = new XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (this.status === 200) {
+                    alert("Professor deleted");
+                    getProfessorsAJAX();
+                } else {
+                    alert("Error deleting professor");
+                }
+            });
+
+            ajaxRequest.open("DELETE", `http://localhost:3001/professor/${professorId}`);
+            ajaxRequest.send();
+        }
+
+        // =========================
+        // 🔹 EDITAR (rellenar form)
+        // =========================
+        function editProfessor(professorId) {
+
+            const ajaxRequest = new XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (this.status === 200) {
+
+                    const professor = JSON.parse(this.responseText);
+
+                    document.getElementById('name').value = professor.name;
+                    document.getElementById('lastName').value = professor.lastName;
+                    document.getElementById('idCard').value = professor.idCard;
+                    document.getElementById('age').value = professor.age;
+
+                    // 🔥 Cambiar botón
+                    const btn = document.getElementById("btnSave");
+                    btn.textContent = "Update";
+                    btn.onclick = function () {
+                        updateProfessorAJAX(professorId);
+                    };
+
+                } else {
+                    alert("Error loading professor");
+                }
+            });
+
+            ajaxRequest.open("GET", `http://localhost:3001/professor?id=${professorId}`);
+            ajaxRequest.send();
+        }
+
+        // =========================
+        // 🔹 UPDATE
+        // =========================
+        function updateProfessorAJAX(professorId) {
+
+            const name = document.getElementById('name').value;
+            const lastName = document.getElementById('lastName').value;
+            const idCard = document.getElementById('idCard').value;
+            const age = Number(document.getElementById('age').value);
+
+            const ajaxRequest = new XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (this.status === 200) {
+                    alert("Professor updated");
+                    clearForm();
+
+                    const btn = document.getElementById("btnSave");
+                    btn.textContent = "Create";
+                    btn.setAttribute("onclick", "createProfessorAJAX()");
+
+                    getProfessorsAJAX();
+
+                } else {
+                    alert("Error updating professor");
+                }
+            });
+
+            ajaxRequest.open("PUT", `http://localhost:3001/professor/${professorId}`);
+            ajaxRequest.setRequestHeader("Content-Type", "application/json");
+
+            const body = JSON.stringify({ name, lastName, idCard, age });
+            ajaxRequest.send(body);
+        }
+
+        // =========================
+        // 🔹 LIMPIAR FORM
+        // =========================
+        function clearForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('idCard').value = '';
+            document.getElementById('age').value = '';
+        }
+
     </script>
+
 </body>
 </html>
