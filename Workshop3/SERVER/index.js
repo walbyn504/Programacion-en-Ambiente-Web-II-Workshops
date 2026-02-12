@@ -178,12 +178,12 @@ app.put('/professor/:id', async (req, res) => {
         );
 
         if(!updatedProfessor){
-            return res.status(404).json({ message: 'Professor not found'});
+            return res.status(404).json({});
         }
 
         res.status(200).json(updatedProfessor);
     } catch(error){
-        res.status(400).json({ message: error.message });
+        res.status(400).json({});
     }
 });
 
@@ -193,12 +193,12 @@ app.delete('/professor/:id' , async (req, res) => {
         const deletedPorfessor = await Professor.findByIdAndDelete(id);
 
         if(!deletedPorfessor){
-            return res.status(404).json({ message: 'Professor not found' });
+            return res.status(404).json({});
         }
 
-        res.status(200).json({ message: 'Professor deleted successfully' });
+        res.status(200).json({});
     } catch(error){
-        res.status(400).json({ message: error.message });
+        res.status(400).json({});
     }
 })
 
