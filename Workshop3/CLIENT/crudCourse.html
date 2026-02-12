@@ -9,36 +9,81 @@
 
     <input type="text" id="name" placeholder="Name Course">
     <input type="number" id="credits" placeholder="Credits">
+    <input type="text" id="code" placeholder="Code">
+    <input type="text" id="description" placeholder="Description">
+    <select id="professorId"></select>
     <br><br>
 
     <button onclick="createCourseAJAX()">Create</button>
     <button onclick="location.href='index.html'">Return</button>
 
     <script>
+
+        // 🔹 Cuando cargue la página, traer profesores
+        window.onload = function () {
+            loadProfessors();
+        };
+
+        function loadProfessors() {
+            const ajaxRequest = new XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (this.status === 200) {
+                    const professors = JSON.parse(this.responseText);
+                    const select = document.getElementById("professorId");
+
+                    // Opción inicial
+                    select.innerHTML = '<option value="">Select Professor</option>';
+
+                    professors.forEach(professor => {
+                        const option = document.createElement("option");
+                        option.value = professor._id;
+                        option.textContent = professor.name + " " + professor.lastName;
+                        select.appendChild(option);
+                    });
+
+                } else {
+                    alert("Error loading professors");
+                }
+            });
+
+            ajaxRequest.open("GET", "http://localhost:3001/professor");
+            ajaxRequest.send();
+        }
+
+
         function createCourseAJAX() {
-            //Se obtiene los datos del formulario
             const name = document.getElementById('name').value;
-            const credits = document.getElementById('credits').value;
-            //Creación del objeto XMLHttpRequest
-            //Hacer petición HTTP al servidor
+            const credits = Number(document.getElementById('credits').value);
+            const code = document.getElementById('code').value;
+            const description = document.getElementById('description').value;
+            const professorId = document.getElementById('professorId').value;
+
             const ajaxRequest = new XMLHttpRequest();
 
             ajaxRequest.addEventListener("load", function () {
                 if (this.status === 201) {
                     alert('Successfully created course');
+
                     document.getElementById('name').value = '';
                     document.getElementById('credits').value = '';
+                    document.getElementById('code').value = '';
+                    document.getElementById('description').value = '';
+                    document.getElementById('professorId').value = '';
+
                 } else {
-                    alert('Error creating course');
+                    const response = JSON.parse(this.responseText);
+                    alert(response.message);
                 }
             });
 
             ajaxRequest.open("POST", "http://localhost:3001/course");
             ajaxRequest.setRequestHeader("Content-Type", "application/json");
 
-            const body = JSON.stringify({ name, credits });
+            const body = JSON.stringify({ name, credits, code, description, professorId });
             ajaxRequest.send(body);
         }
+
     </script>
 </body>
 </html>
