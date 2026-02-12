@@ -3,6 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const Course = require('./models/course');
+const Professor = require('./models/professor');
 
 mongoose.connect('mongodb+srv://WalAdmin:Admin1234@workshop1.n48hs0t.mongodb.net/workshop2');
 const database = mongoose.connection;
