@@ -18,6 +18,7 @@ const courseSchema = new mongoose.Schema({
         required: true
     },
     professorId: {
+        //Indentificador unico y relaciona documentos
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Professor',
         required: true
