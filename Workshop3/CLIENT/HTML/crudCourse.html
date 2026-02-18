@@ -27,7 +27,7 @@
 
     <script>
 
-        // Carga en la pagina al iniciar
+
         window.onload = function () {
             listaProfessor();
             getCourses();
@@ -41,9 +41,9 @@
             ajaxRequest.addEventListener("load", function () {
                 //Exito
                 if (this.status === 200) {
-                    // Convierte el JSON en formato javaScript
+
                     const professors = JSON.parse(this.responseText);
-                    // Busca el select con id
+
                     const select = document.getElementById("professorId");
                     // Reemplaza la información que tiene el select
                     select.innerHTML = '<option value="">Select Professor</option>';
@@ -74,9 +74,9 @@
             ////Evento que se ejecutra cuando el servidor responda
             ajaxRequest.addEventListener("load", function () {
                 if (this.status === 200) {
-                    //Covierte l JSON en javaScript
+                    //Covierte el JSON en javaScript
                     const courses = JSON.parse(this.responseText);
-                    //Tabla dinamica
+
                     let html = `
                         <table>
                             <thead>
@@ -137,17 +137,17 @@
                 return;
             }
 
-            // Se crea el objeto AJAX que hara la llamada HTTP
+
             const ajaxRequest = new XMLHttpRequest();
             //Evento que se ejecuta cuando el servidor responda
             ajaxRequest.addEventListener("load", function () {
                 if (this.status === 201) {
                     alert('Successfully created course');
 
-                    // Limpiar campos
+      
                     clearForm();
 
-                    // Refresca la tabla despues de eliminar el elemento
+       
                     getCourses();
 
                 } else {
@@ -163,7 +163,7 @@
         }
 
         function deleteCourse(courseId) {
-            //Confirmacion de mensaje de eliminacion
+      
             if (!confirm("Are you sure you want to delete this course?")) {
                 return;
             }
@@ -238,7 +238,7 @@
                 if (this.status === 200) {
                     alert("Course updated");
 
-                    //Limpiar lo campos
+               
                     clearForm();
 
                     // Restaurar botón
@@ -260,7 +260,7 @@
             ajaxRequest.send(body);
         }
 
-        //Permite limpiar los campos
+
         function clearForm() {
             document.getElementById('name').value = '';
             document.getElementById('credits').value = '';

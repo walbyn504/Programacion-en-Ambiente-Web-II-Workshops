@@ -30,9 +30,9 @@ app.use(cors({
 //routes
 app.post('/course', async (req, res) => {
     try {
-        //Se obtiene el id del profesor
+
         const professorId = req.body.professorId;
-        //Se buscae el id del professor
+
         const professorExists = await Professor.findById(professorId);
         // Si no se encuntra (dato invalido)
         if (!professorExists) {
@@ -52,11 +52,11 @@ app.post('/course', async (req, res) => {
         const courseCreated = await course.save();
         // El curso creado se encuentra aca (url)
         res.header('Location', `/course?id=${courseCreated._id}`);
-        //curso creado
+
         res.status(201).json(courseCreated);
 
     } catch (error) {
-        //sin permisos (dato invalido)
+        //sin permisos
         res.status(400).json({ message: error.message });
     }
 });
@@ -83,7 +83,7 @@ app.get('/course', async (req, res) => {
 
 app.put('/course/:id', async (req, res) => {
     try {
-        // Se obtiene el id
+
         const id = req.params.id;
         // Se obtiene los datos del curso
         const updatedData = req.body;
@@ -107,11 +107,11 @@ app.put('/course/:id', async (req, res) => {
             { new: true }
             // Obtenemos los datos completos del profesor
         ).populate('professorId');
-        // Si no exixte el id, no se encontro.
+ 
         if (!updatedCourse) {
             return res.status(404).json({});
         }
-        // Actualizado correctamente
+
         res.status(200).json(updatedCourse);
 
     } catch (error) {
@@ -125,17 +125,17 @@ app.delete('/course/:id' , async (req, res) => {
     try{
         //Se obtiene el id
         const id = req.params.id;
-        //Busca el curso por el id y lo elimina
+        
         const deletedCourse = await Course.findByIdAndDelete(id);
         // Si no existe el curso con ese id
         if(!deletedCourse){
-            //Devuelve un estado de no encontrado
+            
             return res.status(404).json({});
         }
-        //Si lo encuantra devuelve una acción de exito
+
         res.status(200).json({});
     } catch(error){
-        //Sin permisos
+
         res.status(400).json({});
     }
 })
@@ -158,7 +158,7 @@ app.get('/professor', async (req, res) => {
 })
 
 app.post('/professor', async (req, res) => {
-    // Se crea un objeto (Professor)
+    // Se crea un objeto
     const professor = new Professor({
         name: req.body.name,
         lastName: req.body.lastName,
@@ -167,9 +167,9 @@ app.post('/professor', async (req, res) => {
     })
 
     try {
-        // Se guarda en la BD el nuevo profesor
+        
         const professorCreated = await professor.save();
-        //add header location to the response
+        // El curso creado se encuentra aca (url)
         res.header('Location', `/professor?id=${professorCreated._id}`);
         res.status(201).json(professorCreated)
     }
@@ -190,22 +190,22 @@ app.put('/professor/:id', async (req, res) => {
         // Se obtiene el id del profesor y los datos
         const id = req.params.id;
         const updatedData = req.body;
-        //Permite que MongoDB me devuelva los datos actualizados
+        
         const options = { new: true };
         //Se busca si el profesor tiene un curso asigando
         const courses = await Course.find({professorId: id});
         if (courses.length > 0){
             return res.status(400).json({message: "Sin permiso de editar el profesor. Tiene un curso asigando"});
         }
-        // Se busca el profesor por id para posteriormente actualizarlo
+        
         const updatedProfessor = await Professor.findByIdAndUpdate(
             id, updatedData, options
         );
-        //Si no se encontro el id (no encontrado)
+        
         if(!updatedProfessor){
             return res.status(404).json({});
         }
-        // Actualizado
+        
         res.status(200).json(updatedProfessor);
     } catch(error){
         // Si el dato idCard esta duplicado 
@@ -228,19 +228,19 @@ app.delete('/professor/:id' , async (req, res) => {
         if (courses.length > 0){
             return res.status(400).json({message: "Sin permiso de eliminar el profesor. Tiene un curso asigando"});
         }
-        // Se elimina el profesor si lo encuentra a travez del id
+        
         const deletedPorfessor = await Professor.findByIdAndDelete(id);
-        //Si no lo encuntra (No encontrado)
+        
         if(!deletedPorfessor){
             return res.status(404).json({});
         }
-        //Eliminiado
-        res.status(200).json({ });
+        
+        res.status(200).json({});
     } catch(error){
         //Sin permisos
         res.status(400).json({});
     }
 })
 
-//start the app
+
 app.listen(3001, () => console.log(`UTN API service listening on port 3001!`))
