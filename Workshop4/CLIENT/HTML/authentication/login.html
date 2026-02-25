@@ -25,7 +25,58 @@
             overflow: auto;
         }
     </style>
+    <script>
+        const API_BASE = "http://localhost:3001";
+
+        async function login(event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email")?.value.trim();
+            const password = document.getElementById("password")?.value;
+
+            if (!email || !password) {
+                showJSON({ error: "Email y contraseña son requeridos." });
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/token`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    alert(data.message || "Error al iniciar sesión");
+                }
+
+                if (data && data.token) {
+                    sessionStorage.setItem("authToken", data.token);
+                    window.location.href = "../menu.html";
+                }
+
+            } catch (err) {
+                alert("Error de conexión con el servidor");
+            }
+        }
+
+        function goToRegister() {
+            window.location.href = "register.html";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("loginForm");
+            if (form) {
+                form.addEventListener("submit", login);
+            }
+        });
+    </script>
 </head>
+
 <body>
     <h1>Login</h1>
 
