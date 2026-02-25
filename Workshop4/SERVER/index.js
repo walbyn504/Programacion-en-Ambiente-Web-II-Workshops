@@ -32,9 +32,7 @@ app.use(cors({
 app.post('/auth/token', generateToken);
 app.post('/auth/register', registerUser);
 
-// =====================
-// RUTAS DE CURSOS (PROTEGIDAS)
-// =====================
+
 //routes
 app.post('/course', authenticateToken, async (req, res) => {
     try {
