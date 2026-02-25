@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Professors (Autenticado)</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 900px;
+            margin: 24px auto;
+        }
+        input, button {
+            padding: 8px;
+            margin: 6px 0;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>CRUD de Profesores (UTN)</h1>
+
+        <h3>Crear / Editar Profesor</h3>
+
+        <input type="hidden" id="professorId">
+
+        <input type="text" id="name" placeholder="Nombre">
+        <input type="text" id="lastName" placeholder="Apellido">
+        <input type="text" id="idCard" placeholder="Cédula">
+        <input type="number" id="age" placeholder="Edad" min="1" max="120">
+
+        <button id="btnSave">Crear</button>
+        <button onclick="location.href='../menu.html'">Volver al menú</button>
+
+        <h3>Lista de Profesores</h3>
+        <div id="professorList"></div>
+
+        <table id="professorTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Créditos</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Profesor</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    
+
+    <script>
+        const API_BASE = "http://localhost:3001";
+        const token = sessionStorage.getItem("authToken"); // token directo
+
+        // ========================
+        // Listar profesores
+        // ========================
+        async function listarProfesores() {
+            try {
+                const token = sessionStorage.getItem("authToken");
+                const response = await fetch(`${API_BASE}/course`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const courses = await response.json();
+
+                const tbody = document.querySelector("#professorTable tbody");
+                tbody.innerHTML = "";
+
+                courses.forEach(course => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${course.name || ""}</td>
+                        <td>${course.credits || ""}</td>
+                        <td>${course.code || ""}</td>
+                        <td>${course.description || ""}</td>
+                        <td>${course.professorId ? course.professorId.name + " " + course.professorId.lastName : ""}</td>
+                        <td>
+                            <button onclick="editCourse('${course._id}')">Editar</button><br>
+                            <button onclick="deleteCourse('${course._id}')">Eliminar</button>
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Error al cargar cursos:", err);
+            }
+        }
+
+        // ========================
+        // Crear profesor
+        // ========================
+        async function createProfessor() {
+            const name = document.getElementById("name").value.trim();
+            const lastName = document.getElementById("lastName").value.trim();
+            const idCard = document.getElementById("idCard").value.trim();
+            const age = Number(document.getElementById("age").value);
+
+            if (!name || !lastName || !idCard || age <= 0) {
+                alert("Todos los campos son requeridos");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/professor`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, lastName, idCard, age })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Error creando profesor");
+                }
+
+                alert("Profesor creado correctamente");
+                clearForm();
+                listarProfesores();
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            }
+        }
+
+        // ========================
+        // Llenar formulario para editar
+        // ========================
+        async function llenarFormularioProfessor(professorId) {
+            try {
+                const response = await fetch(`${API_BASE}/professor?id=${professorId}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const prof = await response.json();
+
+                document.getElementById("professorId").value = prof._id;
+                document.getElementById("name").value = prof.name;
+                document.getElementById("lastName").value = prof.lastName;
+                document.getElementById("idCard").value = prof.idCard;
+                document.getElementById("age").value = prof.age;
+
+                const btn = document.getElementById("btnSave");
+                btn.textContent = "Actualizar";
+                btn.onclick = () => updateProfessor(prof._id);
+
+            } catch (err) {
+                console.error(err);
+                alert("Error cargando profesor");
+            }
+        }
+
+        // ========================
+        // Actualizar profesor
+        // ========================
+        async function updateProfessor(professorId) {
+            const name = document.getElementById("name").value.trim();
+            const lastName = document.getElementById("lastName").value.trim();
+            const idCard = document.getElementById("idCard").value.trim();
+            const age = Number(document.getElementById("age").value);
+
+            if (!name || !lastName || !idCard || age <= 0) {
+                alert("Todos los campos son requeridos");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/professor/${professorId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, lastName, idCard, age })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Error actualizando profesor");
+                }
+
+                alert("Profesor actualizado correctamente");
+                clearForm();
+                resetSaveButton();
+                listarProfesores();
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            }
+        }
+
+        // ========================
+        // Eliminar profesor
+        // ========================
+        async function deleteProfessor(professorId) {
+            if (!confirm("¿Seguro que deseas eliminar este profesor?")) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/professor/${professorId}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Error eliminando profesor");
+                }
+
+                alert("Profesor eliminado correctamente");
+                listarProfesores();
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            }
+        }
+
+        // ========================
+        // Limpiar formulario
+        // ========================
+        function clearForm() {
+            document.getElementById("professorId").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("lastName").value = "";
+            document.getElementById("idCard").value = "";
+            document.getElementById("age").value = "";
+        }
+
+        function resetSaveButton() {
+            const btn = document.getElementById("btnSave");
+            btn.textContent = "Crear";
+            btn.onclick = createProfessor;
+        }
+
+        // ========================
+        // Inicializar
+        // ========================
+        document.addEventListener("DOMContentLoaded", () => {
+            resetSaveButton();
+            listarProfesores();
+        });
+
+    </script>
+
+</body>
+</html>
