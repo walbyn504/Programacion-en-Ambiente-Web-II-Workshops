@@ -54,10 +54,9 @@
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>Créditos</th>
-                    <th>Código</th>
-                    <th>Descripción</th>
-                    <th>Profesor</th>
+                    <th>Apellidos</th>
+                    <th>Cédula</th>
+                    <th>Edad</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -77,33 +76,32 @@
         async function listarProfesores() {
             try {
                 const token = sessionStorage.getItem("authToken");
-                const response = await fetch(`${API_BASE}/course`, {
+                const response = await fetch(`${API_BASE}/professor`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
-                const courses = await response.json();
+                const professors = await response.json();
 
                 const tbody = document.querySelector("#professorTable tbody");
                 tbody.innerHTML = "";
 
-                courses.forEach(course => {
+                professors.forEach(prof => {
                     const row = document.createElement("tr");
 
                     row.innerHTML = `
-                        <td>${course.name || ""}</td>
-                        <td>${course.credits || ""}</td>
-                        <td>${course.code || ""}</td>
-                        <td>${course.description || ""}</td>
-                        <td>${course.professorId ? course.professorId.name + " " + course.professorId.lastName : ""}</td>
+                        <td>${prof.name || ""}</td>
+                        <td>${prof.lastName || ""}</td>
+                        <td>${prof.idCard || ""}</td>
+                        <td>${prof.age || ""}</td>
                         <td>
-                            <button onclick="editCourse('${course._id}')">Editar</button><br>
-                            <button onclick="deleteCourse('${course._id}')">Eliminar</button>
+                            <button onclick="editProfessor('${prof._id}')">Editar</button><br>
+                            <button onclick="deleteProfessor('${prof._id}')">Eliminar</button>
                         </td>
                     `;
 
                     tbody.appendChild(row);
                 });
             } catch (err) {
-                console.error("Error al cargar cursos:", err);
+                console.error("Error al cargar profesores:", err);
             }
         }
 
