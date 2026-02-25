@@ -70,9 +70,6 @@
         const API_BASE = "http://localhost:3001";
         const token = sessionStorage.getItem("authToken"); // token directo
 
-        // ========================
-        // Listar profesores
-        // ========================
         async function listarProfesores() {
             try {
                 const token = sessionStorage.getItem("authToken");
@@ -105,9 +102,6 @@
             }
         }
 
-        // ========================
-        // Crear profesor
-        // ========================
         async function createProfessor() {
             const name = document.getElementById("name").value.trim();
             const lastName = document.getElementById("lastName").value.trim();
@@ -143,11 +137,8 @@
                 alert(err.message);
             }
         }
-
-        // ========================
-        // Llenar formulario para editar
-        // ========================
-        async function llenarFormularioProfessor(professorId) {
+        
+        async function editProfessor(professorId) {
             try {
                 const response = await fetch(`${API_BASE}/professor?id=${professorId}`, {
                     headers: { "Authorization": `Bearer ${token}` }
@@ -171,9 +162,6 @@
             }
         }
 
-        // ========================
-        // Actualizar profesor
-        // ========================
         async function updateProfessor(professorId) {
             const name = document.getElementById("name").value.trim();
             const lastName = document.getElementById("lastName").value.trim();
@@ -211,9 +199,6 @@
             }
         }
 
-        // ========================
-        // Eliminar profesor
-        // ========================
         async function deleteProfessor(professorId) {
             if (!confirm("¿Seguro que deseas eliminar este profesor?")) return;
 
@@ -237,9 +222,6 @@
             }
         }
 
-        // ========================
-        // Limpiar formulario
-        // ========================
         function clearForm() {
             document.getElementById("professorId").value = "";
             document.getElementById("name").value = "";
@@ -254,9 +236,6 @@
             btn.onclick = createProfessor;
         }
 
-        // ========================
-        // Inicializar
-        // ========================
         document.addEventListener("DOMContentLoaded", () => {
             resetSaveButton();
             listarProfesores();
