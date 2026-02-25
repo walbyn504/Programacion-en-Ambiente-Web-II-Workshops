@@ -96,9 +96,6 @@
         const API_BASE = "http://localhost:3001";
         const token = sessionStorage.getItem("authToken"); // token directo
 
-        // ========================
-        // Cargar Profesores
-        // ========================
         async function loadProfessors() {
             try {
                 const response = await fetch(`${API_BASE}/professor`, {
@@ -118,9 +115,6 @@
             }
         }
 
-        // ========================
-        // Cargar Cursos
-        // ========================
         async function loadCourses() {
             try {
                 const token = sessionStorage.getItem("authToken");
@@ -154,9 +148,6 @@
             }
         }
 
-        // ========================
-        // Editar Curso
-        // ========================
         async function editCourse(id) {
             try {
                 const token = sessionStorage.getItem("authToken");
@@ -176,9 +167,6 @@
             }
         }
 
-        // ========================
-        // Guardar Curso
-        // ========================
         async function saveCourse() {
             try {
                 const id = document.getElementById("courseId").value.trim();
@@ -225,9 +213,6 @@
             }
         }
 
-        // ========================
-        // Eliminar Curso
-        // ========================
         async function deleteCourse(id) {
             if (!confirm("¿Seguro que quieres eliminar este curso?")) return;
 
@@ -250,9 +235,6 @@
             }
         }
 
-        // ========================
-        // Limpiar Formulario
-        // ========================
         function clearForm() {
             document.getElementById("courseId").value = "";
             document.getElementById("name").value = "";
@@ -262,9 +244,6 @@
             document.getElementById("professor").value = "";
         }
 
-        // ========================
-        // Inicializar página
-        // ========================
         document.addEventListener("DOMContentLoaded", () => {
             loadProfessors();
             loadCourses();
