@@ -65,7 +65,40 @@ const generateToken = async (req, res) => {
   }
 };
 
+const registerUser = async (req, res) => {
+  const { name, lastName, email, password } = req.body;
+
+  if (!name || !lastName || !email || !password) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const user = new User({
+      name,
+      lastName,
+      email,
+      password,
+      token: null
+    });
+
+    await user.save();
+
+    return res.status(201).json({ message: 'User registered successfully' });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error registering user' });
+  }
+};
+
 module.exports = {
   authenticateToken,
-  generateToken
+  generateToken,
+  registerUser
 };
