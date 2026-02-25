@@ -72,7 +72,7 @@
             <input id="description" placeholder="Descripción"/>
         </div>
 
-        <button id="btnSave" onclick="saveCourse()">Guardar</button>
+        <button id="btnSave" onclick="createCourse()">Guardar</button>
         <button onclick="location.href='../menu.html'">Volver al menú</button>
 
         <h3>Lista de Cursos</h3>
@@ -204,7 +204,7 @@
 
                 alert("Curso creado correctamente");
                 clearForm();
-                listarCursos();
+                loadCourses()
 
             } catch (err) {
                 console.error(err);
