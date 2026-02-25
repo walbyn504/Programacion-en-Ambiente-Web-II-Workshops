@@ -72,7 +72,7 @@
             <input id="description" placeholder="Descripción"/>
         </div>
 
-        <button onclick="saveCourse()">Guardar</button>
+        <button id="btnSave" onclick="saveCourse()">Guardar</button>
         <button onclick="location.href='../menu.html'">Volver al menú</button>
 
         <h3>Lista de Cursos</h3>
@@ -148,12 +148,12 @@
             }
         }
 
-        async function editCourse(id) {
+        async function editCourse(courseId) {
             try {
-                const token = sessionStorage.getItem("authToken");
-                const response = await fetch(`${API_BASE}/course?id=${id}`, {
+                const response = await fetch(`${API_BASE}/course?id=${courseId}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
+
                 const course = await response.json();
 
                 document.getElementById("courseId").value = course._id || "";
@@ -162,14 +162,58 @@
                 document.getElementById("code").value = course.code || "";
                 document.getElementById("description").value = course.description || "";
                 document.getElementById("professor").value = course.professorId ? course.professorId._id : "";
+
+                // Cambiar botón de guardar a "Actualizar"
+                const btn = document.getElementById("btnSave");
+                btn.textContent = "Actualizar";
+                btn.onclick = () => updateCourse(course._id);
+
             } catch (err) {
-                console.error("Error al obtener curso:", err);
+                console.error(err);
+                alert("Error cargando curso");
             }
         }
 
-        async function saveCourse() {
+        async function createCourse() {
+
+            const name = document.getElementById("name").value.trim();
+            const credits = Number(document.getElementById("credits").value);
+            const code = document.getElementById("code").value.trim();
+            const description = document.getElementById("description").value.trim();
+            const professorId = document.getElementById("professor").value;
+
+            if (!name || !credits || !code || !description || !professorId) {
+                alert("Todos los campos son requeridos");
+                return;
+            }
+
             try {
-                const id = document.getElementById("courseId").value.trim();
+                const response = await fetch(`${API_BASE}/course`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, credits, code, description, professorId })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Error creando curso");
+                }
+
+                alert("Curso creado correctamente");
+                clearForm();
+                listarCursos();
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            }
+        }
+
+        async function updateCourse(courseId) {
+            try {
                 const professorId = document.getElementById("professor").value;
 
                 if (!professorId) {
@@ -187,29 +231,31 @@
 
                 const token = sessionStorage.getItem("authToken");
 
-                const options = {
-                    method: id ? "PUT" : "POST",
+                const response = await fetch(`${API_BASE}/course/${courseId}`, {
+                    method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(data)
-                };
+                });
 
-                const url = id ? `${API_BASE}/course/${id}` : `${API_BASE}/course`;
-
-                const response = await fetch(url, options);
                 const result = await response.json();
-
                 if (!response.ok) {
-                    alert(`Error: ${result.message || "Algo salió mal"}`);
-                    return;
+                    throw new Error(result.message || "Error actualizando curso");
                 }
+                alert("Curso actualizado correctamente");
 
-                clearForm();
+                const btn = document.getElementById("btnSave");
+                btn.textContent = "Guardar";
+                btn.onclick = () => createCourse();
+
+                clearForm();   
                 loadCourses();
+
             } catch (err) {
-                console.error("Error al guardar curso:", err);
+                console.error(err);
+                alert(err.message);
             }
         }
 
