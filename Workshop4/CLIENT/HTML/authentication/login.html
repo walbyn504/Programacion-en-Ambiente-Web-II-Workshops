@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 900px;
+            margin: 24px auto;
+        }
+
+        input,
+        button {
+            padding: 8px;
+            margin: 6px 0;
+            width: 100%;
+        }
+
+        pre {
+            background: #f6f6f6;
+            padding: 12px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Login</h1>
+
+    <form id="loginForm">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="tu@email"
+            autocomplete="username"
+            required />
+
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" placeholder="********"
+            autocomplete="new-password"
+            required />
+
+        <button type="submit">Iniciar sesión</button>
+    </form>
+
+    <!-- NUEVO BOTÓN -->
+    <hr>
+    <button type="button" onclick="goToRegister()">
+        Crear cuenta
+    </button>
+
+</body>
+
+</html>
