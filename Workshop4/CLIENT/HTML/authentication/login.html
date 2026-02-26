@@ -35,7 +35,7 @@
             const password = document.getElementById("password")?.value;
 
             if (!email || !password) {
-                showJSON({ error: "Email y contraseña son requeridos." });
+                alert("Por favor, completa todos los campos");
                 return;
             }
 
