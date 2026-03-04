@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+
+<h1>Registro</h1>
+
+<form id="registerForm" autocomplete="off">
+    <input id="name" placeholder="Name"/>
+    <input id="lastName" placeholder="Last Name"/>
+    <input id="email" type="email" placeholder="Email"/>
+    <input id="password" type="password" placeholder="Password" required autocomplete="new-password" />
+    <button type="submit">Registrarse</button>
+    <button type="button" onclick="exit()">Salir</button>
+</form>
+
+<pre id="result"></pre>
+
+<script>
+const API_BASE = "http://localhost:3001";
+
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const lastName = document.getElementById("lastName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+        const response = await fetch(`${API_BASE}/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, lastName, email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message || "Error al registrar usuario");
+
+            // Limpiar campos si hubo error
+            document.getElementById("name").value = "";
+            document.getElementById("lastName").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("password").value = "";
+
+            return;
+        }
+
+        alert("Usuario creado correctamente. Ahora inicia sesión.");
+        window.location.href = "login.html";
+
+        document.getElementById("name").value = "";
+        document.getElementById("lastName").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+
+    } catch (error) {
+        alert("No se pudo conectar a la API");
+    }
+
+});
+
+    function exit() {
+        window.location.href = "login.html";
+    }
+
+</script>
+</body>
+</html>

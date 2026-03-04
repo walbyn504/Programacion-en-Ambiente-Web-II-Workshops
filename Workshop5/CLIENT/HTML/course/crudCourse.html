@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses API</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 900px;
+            margin: 24px auto;
+        }
+
+        input,
+        select,
+        button {
+            padding: 8px;
+            margin: 6px 0;
+            width: 100%;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #f2f2f2;
+        }
+
+        pre {
+            background: #f6f6f6;
+            padding: 12px;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Courses API (UTN)</h1>
+
+        <h3>Crear / Editar Curso</h3>
+
+        <input id="courseId" type="hidden" />
+
+        <label for="professor">Profesor</label>
+        <select id="professor" required>
+            <option value="">Seleccione un profesor</option>
+        </select>
+
+        <div class="row">
+            <input id="name" placeholder="Nombre"/>
+            <input id="credits" type="number" placeholder="Créditos"/>
+            <input id="code" placeholder="Código"/>
+            <input id="description" placeholder="Descripción"/>
+        </div>
+
+        <button id="btnSave" onclick="createCourse()">Guardar</button>
+        <button onclick="location.href='../menu.html'">Volver al menú</button>
+
+        <h3>Lista de Cursos</h3>
+
+        <table id="coursesTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Créditos</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Profesor</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:3001";
+        const token = sessionStorage.getItem("authToken"); // token directo
+
+        async function loadProfessors() {
+            try {
+                const response = await fetch(`${API_BASE}/professor`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const professors = await response.json();
+                const select = document.getElementById("professor");
+                select.innerHTML = `<option value="">Seleccione un profesor</option>`;
+                professors.forEach(p => {
+                    const option = document.createElement("option");
+                    option.value = p._id;
+                    option.textContent = `${p.name} ${p.lastName}`;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error("Error al cargar profesores:", err);
+            }
+        }
+
+        async function loadCourses() {
+            try {
+                const token = sessionStorage.getItem("authToken");
+                const response = await fetch(`${API_BASE}/course`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const courses = await response.json();
+
+                const tbody = document.querySelector("#coursesTable tbody");
+                tbody.innerHTML = "";
+
+                courses.forEach(course => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${course.name || ""}</td>
+                        <td>${course.credits || ""}</td>
+                        <td>${course.code || ""}</td>
+                        <td>${course.description || ""}</td>
+                        <td>${course.professorId ? course.professorId.name + " " + course.professorId.lastName : ""}</td>
+                        <td>
+                            <button onclick="editCourse('${course._id}')">Editar</button><br>
+                            <button onclick="deleteCourse('${course._id}')">Eliminar</button>
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Error al cargar cursos:", err);
+            }
+        }
+
+        async function editCourse(courseId) {
+            try {
+                const response = await fetch(`${API_BASE}/course?id=${courseId}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const course = await response.json();
+
+                document.getElementById("courseId").value = course._id || "";
+                document.getElementById("name").value = course.name || "";
+                document.getElementById("credits").value = course.credits || "";
+                document.getElementById("code").value = course.code || "";
+                document.getElementById("description").value = course.description || "";
+                document.getElementById("professor").value = course.professorId ? course.professorId._id : "";
+
+                // Cambiar botón de guardar a "Actualizar"
+                const btn = document.getElementById("btnSave");
+                btn.textContent = "Actualizar";
+                btn.onclick = () => updateCourse(course._id);
+
+            } catch (err) {
+                console.error(err);
+                alert("Error cargando curso");
+            }
+        }
+
+        async function createCourse() {
+
+            const name = document.getElementById("name").value.trim();
+            const credits = Number(document.getElementById("credits").value);
+            const code = document.getElementById("code").value.trim();
+            const description = document.getElementById("description").value.trim();
+            const professorId = document.getElementById("professor").value;
+
+            if (!name || !credits || !code || !description || !professorId) {
+                alert("Todos los campos son requeridos");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/course`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, credits, code, description, professorId })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Error creando curso");
+                }
+
+                alert("Curso creado correctamente");
+                clearForm();
+                loadCourses()
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            }
+        }
+
+        async function updateCourse(courseId) {
+            try {
+                const professorId = document.getElementById("professor").value;
+
+                if (!professorId) {
+                    alert("Debe seleccionar un profesor.");
+                    return;
+                }
+
+                const data = {
+                    name: document.getElementById("name").value.trim(),
+                    credits: Number(document.getElementById("credits").value),
+                    code: document.getElementById("code").value.trim(),
+                    description: document.getElementById("description").value.trim(),
+                    professorId
+                };
+
+                const token = sessionStorage.getItem("authToken");
+
+                const response = await fetch(`${API_BASE}/course/${courseId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Error actualizando curso");
+                }
+                alert("Curso actualizado correctamente");
+
+                const btn = document.getElementById("btnSave");
+                btn.textContent = "Guardar";
+                btn.onclick = () => createCourse();
+
+                clearForm();   
+                loadCourses();
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            }
+        }
+
+        async function deleteCourse(id) {
+            if (!confirm("¿Seguro que quieres eliminar este curso?")) return;
+
+            try {
+                const token = sessionStorage.getItem("authToken");
+                const response = await fetch(`${API_BASE}/course/${id}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    alert(err.message || "Error al eliminar curso");
+                    return;
+                }
+
+                loadCourses();
+            } catch (err) {
+                console.error("Error al eliminar curso:", err);
+            }
+        }
+
+        function clearForm() {
+            document.getElementById("courseId").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("credits").value = "";
+            document.getElementById("code").value = "";
+            document.getElementById("description").value = "";
+            document.getElementById("professor").value = "";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadProfessors();
+            loadCourses();
+        });
+    </script>
+
+</body>
+</html>
